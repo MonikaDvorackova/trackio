@@ -3,7 +3,7 @@
   import LoadingTrackio from "../components/LoadingTrackio.svelte";
   import {
     getProjectSummary,
-    getRunSummary,
+    getRunSummaries,
     getRunArtifactCounts,
     deleteRun,
     renameRun,
@@ -106,7 +106,7 @@
       const summary = await getProjectSummary(project);
       const runRecords = summary.runs || [];
       const [summaries, artifactCounts] = await Promise.all([
-        Promise.all(runRecords.map((run) => getRunSummary(project, run))),
+        getRunSummaries(project),
         getRunArtifactCounts(project).catch(() => []),
       ]);
       if (seq !== loadSeq) return;

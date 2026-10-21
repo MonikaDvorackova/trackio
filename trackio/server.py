@@ -969,6 +969,15 @@ def get_runs_for_project(project: str) -> list[dict[str, Any]]:
     return SQLiteStorage.get_run_records(project)
 
 
+def get_run_summaries(project: str) -> list[dict[str, Any]]:
+    """Return summaries for all runs in a project in one API call."""
+    records = SQLiteStorage.get_run_records(project)
+    return [
+        _get_run_summary_resolved(project, record["name"], record["id"])
+        for record in records
+    ]
+
+
 def get_run_configs(project: str) -> dict[str, Any]:
     return SQLiteStorage.get_all_run_configs(project)
 
@@ -1025,6 +1034,12 @@ def get_run_summary(
         if record is not None:
             run = record["name"]
 
+    return _get_run_summary_resolved(project, run, run_id)
+
+
+def _get_run_summary_resolved(
+    project: str, run: str | None, run_id: str | None
+) -> dict[str, Any]:
     num_logs = SQLiteStorage.get_log_count(project, run, run_id=run_id)
     if num_logs == 0:
         return {
@@ -1412,6 +1427,7 @@ def _api_registry() -> dict[str, Any]:
         "get_all_projects": get_all_projects,
         "get_project_summary": get_project_summary,
         "get_run_summary": get_run_summary,
+        "get_run_summaries": get_run_summaries,
         "get_system_metrics_for_run": get_system_metrics_for_run,
         "get_system_logs": get_system_logs,
         "get_system_logs_batch": get_system_logs_batch,

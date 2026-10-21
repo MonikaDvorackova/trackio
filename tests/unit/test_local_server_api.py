@@ -104,6 +104,36 @@ def test_local_dashboard_supports_remote_client(temp_dir):
         app.close()
 
 
+def test_local_dashboard_batch_run_summaries(temp_dir):
+    project = "test_batch_run_summaries"
+
+    trackio.init(project=project, name="first")
+    trackio.log(metrics={"loss": 0.5})
+    trackio.finish()
+
+    trackio.init(project=project, name="second")
+    trackio.log(metrics={"loss": 0.4})
+    trackio.log(metrics={"loss": 0.3})
+    trackio.finish()
+
+    app, url, _, _ = trackio.show(block_thread=False, open_browser=False)
+
+    try:
+        client = Client(url, verbose=False)
+        records = client.predict(project, api_name="/get_runs_for_project")
+        summaries = client.predict(project, api_name="/get_run_summaries")
+
+        assert len(summaries) == len(records) == 2
+        assert [s["run_id"] for s in summaries] == [record["id"] for record in records]
+        assert {s["run"]: s["num_logs"] for s in summaries} == {
+            "first": 1,
+            "second": 2,
+        }
+    finally:
+        trackio.delete_project(project, force=True)
+        app.close()
+
+
 def test_local_dashboard_registry_read_api(temp_dir):
     registry = trackio.Api().create_registry("models", description="Our models")
     registry.create_collection("churn", "model", description="Churn scorer")

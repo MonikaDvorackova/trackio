@@ -144,6 +144,16 @@ export async function getProjectSummary(project) {
   return await callApi("/get_project_summary", { project });
 }
 
+export async function getRunSummaries(project) {
+  if (await isStaticMode()) {
+    const runs = await staticApi.getRunsForProject(project);
+    return await Promise.all(
+      runs.map((run) => staticApi.getRunSummary(project, run)),
+    );
+  }
+  return await callApi("/get_run_summaries", { project });
+}
+
 export async function getRunSummary(project, run) {
   const params = { project, ...normalizeRun(run) };
   if (await isStaticMode()) return staticApi.getRunSummary(project, run);

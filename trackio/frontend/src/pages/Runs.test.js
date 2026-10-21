@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount, unmount, tick } from "svelte";
 import Runs from "./Runs.svelte";
 import RunsTestHarness from "./RunsTestHarness.svelte";
-import { deleteRun, getProjectSummary, getRunSummary, getRunArtifactCounts } from "../lib/api.js";
+import { deleteRun, getProjectSummary, getRunSummaries, getRunArtifactCounts } from "../lib/api.js";
 
 vi.mock("../lib/api.js", () => ({
   deleteRun: vi.fn(),
   getProjectSummary: vi.fn(),
-  getRunSummary: vi.fn(),
+  getRunSummaries: vi.fn(),
   getRunArtifactCounts: vi.fn(),
   renameRun: vi.fn(),
 }));
@@ -36,7 +36,14 @@ beforeEach(() => {
   document.body.appendChild(target);
   records = [{ id: "a", name: "same" }, { id: "b", name: "same" }, { id: "c", name: "control" }];
   getProjectSummary.mockImplementation(async () => ({ runs: [...records] }));
-  getRunSummary.mockResolvedValue({ num_logs: 3, last_step: 2 });
+  getRunSummaries.mockImplementation(async () =>
+    records.map((run) => ({
+      run_id: run.id,
+      run: run.name,
+      num_logs: 3,
+      last_step: 2,
+    })),
+  );
   getRunArtifactCounts.mockResolvedValue([]);
   deleteRun.mockImplementation(async (_project, run) => {
     records = records.filter((record) => record.id !== run.id);
