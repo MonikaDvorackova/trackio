@@ -871,7 +871,7 @@ def main():
     sync_parser.add_argument(
         "--private",
         action="store_true",
-        help="Make the Hugging Face Space private if creating a new Space. By default, the repo will be public unless the organization's default is private. This value is ignored if the repo already exists.",
+        help="Make the Hugging Face Space private if creating a new Space. By default, the repo will be public unless the organization's default is private. This value is ignored if the repo already exists. Not supported with --sdk static.",
     )
     sync_parser.add_argument(
         "--force",
@@ -912,7 +912,7 @@ def main():
     freeze_parser.add_argument(
         "--private",
         action="store_true",
-        help="Make the new static Space private.",
+        help="Not supported. Static Spaces serve their data publicly, so a frozen snapshot cannot be private. Use a Gradio Space for a private dashboard.",
     )
     freeze_parser.add_argument(
         "--frontend",
